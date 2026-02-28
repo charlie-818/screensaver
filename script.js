@@ -40,7 +40,7 @@
     var h = window.innerHeight;
     this.canvas.width = w;
     this.canvas.height = h;
-    var maxSize = 320;
+    var maxSize = w >= 1920 ? 320 * 1.5 : 320;
     this.drawWidth = Math.min(this.logoWidth, maxSize);
     this.drawHeight = (this.logoHeight / this.logoWidth) * this.drawWidth;
     if (this.logoHeight > 0 && this.logoWidth > 0 && this.drawHeight > maxSize) {
