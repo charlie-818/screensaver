@@ -111,23 +111,28 @@
   };
 
   Screensaver.prototype.forceCornerHit = function (hitX, hitY, w, h) {
-    var cornerX, cornerY;
+    var speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
 
     if (hitX) {
-      cornerX = this.x <= 0 ? 0 : w;
-      var targetY = Math.random() < 0.5 ? 0 : h - this.drawHeight;
-      this.y = targetY;
-      cornerY = targetY <= 0 ? 0 : h;
-      this.vy = targetY <= 0 ? Math.abs(this.vy) : -Math.abs(this.vy);
+      var distX = w - this.drawWidth;
+      var targetTop = Math.random() < 0.5;
+      var distY = targetTop ? this.y : (h - this.drawHeight - this.y);
+      var ratio = distY / distX;
+      this.vy = (targetTop ? -1 : 1) * Math.abs(this.vx) * ratio;
     } else {
-      cornerY = this.y <= 0 ? 0 : h;
-      var targetX = Math.random() < 0.5 ? 0 : w - this.drawWidth;
-      this.x = targetX;
-      cornerX = targetX <= 0 ? 0 : w;
-      this.vx = targetX <= 0 ? Math.abs(this.vx) : -Math.abs(this.vx);
+      var distY = h - this.drawHeight;
+      var targetLeft = Math.random() < 0.5;
+      var distX = targetLeft ? this.x : (w - this.drawWidth - this.x);
+      var ratio = distX / distY;
+      this.vx = (targetLeft ? -1 : 1) * Math.abs(this.vy) * ratio;
     }
 
-    this.spawnConfetti(cornerX, cornerY);
+    var newSpeed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+    if (newSpeed > 0) {
+      this.vx = (this.vx / newSpeed) * speed;
+      this.vy = (this.vy / newSpeed) * speed;
+    }
+
     this.bounceCount = 0;
     this.nextCornerAt = this.randomBounceTarget();
   };
