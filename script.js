@@ -16,6 +16,8 @@
     this.drawWidth = 0;
     this.drawHeight = 0;
     this.confetti = [];
+    this.bounceCount = 0;
+    this.nextCornerAt = this.randomBounceTarget();
 
     var self = this;
 
@@ -50,6 +52,10 @@
     }
     this.x = Math.max(0, Math.min(this.x, w - this.drawWidth));
     this.y = Math.max(0, Math.min(this.y, h - this.drawHeight));
+  };
+
+  Screensaver.prototype.randomBounceTarget = function () {
+    return Math.floor(Math.random() * 16) + 15;
   };
 
   Screensaver.prototype.bounce = function () {
@@ -91,9 +97,39 @@
       cornerY = h;
     }
 
+    if (hitX || hitY) {
+      this.bounceCount++;
+    }
+
     if (hitX && hitY) {
       this.spawnConfetti(cornerX, cornerY);
+      this.bounceCount = 0;
+      this.nextCornerAt = this.randomBounceTarget();
+    } else if (this.bounceCount >= this.nextCornerAt && (hitX || hitY)) {
+      this.forceCornerHit(hitX, hitY, w, h);
     }
+  };
+
+  Screensaver.prototype.forceCornerHit = function (hitX, hitY, w, h) {
+    var cornerX, cornerY;
+
+    if (hitX) {
+      cornerX = this.x <= 0 ? 0 : w;
+      var targetY = Math.random() < 0.5 ? 0 : h - this.drawHeight;
+      this.y = targetY;
+      cornerY = targetY <= 0 ? 0 : h;
+      this.vy = targetY <= 0 ? Math.abs(this.vy) : -Math.abs(this.vy);
+    } else {
+      cornerY = this.y <= 0 ? 0 : h;
+      var targetX = Math.random() < 0.5 ? 0 : w - this.drawWidth;
+      this.x = targetX;
+      cornerX = targetX <= 0 ? 0 : w;
+      this.vx = targetX <= 0 ? Math.abs(this.vx) : -Math.abs(this.vx);
+    }
+
+    this.spawnConfetti(cornerX, cornerY);
+    this.bounceCount = 0;
+    this.nextCornerAt = this.randomBounceTarget();
   };
 
   Screensaver.prototype.spawnConfetti = function (x, y) {
